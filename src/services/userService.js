@@ -13,12 +13,12 @@ let handleUserLogin = (email, password) => {
                 let user = await db.User.findOne({
                     attributes: ['email', 'roleId', 'password'],
                     where: { email: email },
-                    raw: true
+                    raw: true,
                 });
                 if (user) {
                     // let check = await bcrypt.compareSync(password, user.password);
                     let check = password == user.password ? true : false; // fix tạm để học tiếp hash password có vấn đề
-                    if(check) {
+                    if (check) {
                         userData.errCode = 0;
                         userData.errMessage = 'ok';
                         delete user.password;
@@ -60,6 +60,33 @@ let checkUserEmail = (userEmail) => {
     });
 };
 
+let getAllUsers = (userId) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let users = '';
+            if (userId === 'ALL') {
+                users = db.User.findAll({
+                    attributes: {
+                        exclude: ['password'],
+                    },
+                });
+            }
+            if (userId && userId !== 'ALL') {
+                users = await db.User.findOne({
+                    where: { id: userId },
+                    attributes: {
+                        exclude: ['password'],
+                    },
+                });
+            }
+            resolve(users);
+        } catch (error) {
+            reject(error);
+        }
+    });
+};
+
 module.exports = {
     handleUserLogin,
+    getAllUsers,
 };
